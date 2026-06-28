@@ -357,7 +357,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getDatabase, ref, set, onValue, push, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, set, onValue, push, update, off } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDlyDbpwcBcWvFnvYHb84dMEpaQFTjv-HY",
@@ -384,6 +384,12 @@
         let searchCurrentMatches = [];
         let searchCollectedNames = [];
 
+        // שמירת רפרנסים פעילים ל-Firebase כדי לאפשר ניתוק מאזינים ישנים בעת ניווט (מונע הצטברות מאזינים)
+        let activeDataRef = null;
+        let activeStatusRef = null;
+        let activeTeamStatusRef = null;
+        let activeTeamRoundRef = null;
+
         // חשיפת פונקציות לחלון הגלובלי
         window.changeRound = changeRound;
         window.addNewGroup = addNewGroup;
@@ -402,6 +408,9 @@
         // אתחול ראשוני והאזנה למצב הסבבים הפעילים גלובלית
         buildRoundOptions();
         listenToActiveRoundsSystem();
+
+        // האזנה לשינויי hash (מעבר בין לינקים) כדי לעדכן את התצוגה בלי צורך ברענון
+        window.addEventListener('hashchange', handleRouting);
 
         function buildRoundOptions() {
             const select = document.getElementById("roundSelect");
@@ -654,7 +663,12 @@
 
         // האזנה לנתוני הסבב ב-Firebase
         function listenToData() {
+            // ניתוק מאזינים קודמים (אם היו) למניעת הצטברות מאזינים בעת ניווט בין לינקים
+            if (activeDataRef) off(activeDataRef);
+            if (activeStatusRef) off(activeStatusRef);
+
             const roundRef = ref(db, `hackathon/round_${currentRound}`);
+            activeDataRef = roundRef;
             onValue(roundRef, (snapshot) => {
                 allGroups = snapshot.val() || {};
                 
@@ -669,6 +683,7 @@
             });
 
             const statusRef = ref(db, `hackathon_status/round_${currentRound}`);
+            activeStatusRef = statusRef;
             onValue(statusRef, (snapshot) => {
                 roundStatus = snapshot.val() || 'submission';
                 updateStatusUI();
@@ -696,11 +711,18 @@
 
         // האזנה לעמוד קבוצה ספציפי בזמן אמת
         function listenToTeamData(teamId) {
+            // ניתוק מאזינים קודמים למניעת הצטברות מאזינים בעת ניווט בין לינקים
+            if (activeTeamStatusRef) off(activeTeamStatusRef);
+            if (activeTeamRoundRef) off(activeTeamRoundRef);
+
             const statusRef = ref(db, `hackathon_status/round_${currentRound}`);
+            activeTeamStatusRef = statusRef;
             onValue(statusRef, (snapshot) => {
                 roundStatus = snapshot.val() || 'submission';
                 
                 const roundRef = ref(db, `hackathon/round_${currentRound}`);
+                if (activeTeamRoundRef) off(activeTeamRoundRef);
+                activeTeamRoundRef = roundRef;
                 onValue(roundRef, (snap) => {
                     const groups = snap.val() || {};
                     const groupPair = Object.entries(groups).find(([k, v]) => v.id === teamId);
