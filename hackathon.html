@@ -662,11 +662,14 @@
             });
         }
 
-        /* רינדור ממשק קבוצה בודדת */
+/* רינדור ממשק קבוצה בודדת */
         function renderTeamSingleView(group) {
             document.getElementById('teamViewRoundLabel').innerText = `סבב ${currentRound}`;
             document.getElementById('teamViewNameLabel').innerText = group.name;
             document.getElementById('teamViewMembersLabel').innerText = `משתתפים: ${group.members}`;
+
+            // תיקון חזרה לסבב הנוכחי: מעדכן את כפתור החזרה דינמית לסבב הפעיל
+            document.getElementById('backToRoundBtn').href = `#round-${currentRound}`;
 
             // הסתרת כל הסקשנים תחילה
             document.getElementById('statusSubmissionSection').classList.add('hidden');
@@ -679,7 +682,7 @@
                 urlInput.value = group.productUrl;
             }
 
-            // תיקון 1: התאמת פיצ'רים וטקסטים לפי 4 הסטטוסים המופרדים
+            // התאמת פיצ'רים וטקסטים לפי 4 הסטטוסים המופרדים
             if (roundStatus === 'submission') {
                 document.getElementById('statusSubmissionSection').classList.remove('hidden');
             } 
