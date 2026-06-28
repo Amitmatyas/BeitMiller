@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>שפיטת תחרות האקטון AI - בית מילר</title>
+    <title id="pageTitle">תחרות האקטון AI - בית מילר</title>
     <link rel="icon" type="image/png" href="https://bmiller.co.il/wp-content/uploads/2026/06/Miller-logos-01-1024x369.png">
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,133 +13,273 @@
     <style>
         body { font-family: 'Rubik', sans-serif; }
         .podium-item { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .view-section { display: none; }
+        .view-section.active { display: block; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen pb-12">
 
+    <!-- ראש העמוד קבוע לכל התצוגות (הכותרות משתנות דינמית ב-JS) -->
     <header class="bg-white shadow-md border-b border-indigo-100 py-4 mb-8 sticky top-0 z-50">
         <div class="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
             <img src="https://bmiller.co.il/wp-content/uploads/2026/06/Miller-logos-01-1024x369.png" alt="בית מילר" class="h-14 object-contain">
             <div class="text-center md:text-right">
-                <h1 class="text-2xl font-black text-indigo-900">שפיטת תחרות האקטון AI</h1>
-                <p class="text-sm text-indigo-600 font-medium">סדנה טכנולוגית בבית מילר</p>
+                <h1 class="text-2xl font-black text-indigo-900" id="mainHeaderTitle">תחרות האקטון AI</h1>
+                <p class="text-sm text-indigo-600 font-medium" id="mainHeaderSubtitle">סדנה טכנולוגית בבית מילר</p>
             </div>
         </div>
     </header>
 
-    <main class="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
-        <div class="lg:col-span-8 space-y-8">
+    <!-- תצוגה 1: פאנל מנהל ושופט (#admin) -->
+    <div id="adminView" class="view-section container mx-auto px-4">
+        <!-- סרגל בקרת סטטוס תחרות -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 mb-8">
+            <h3 class="text-lg font-bold text-slate-800 mb-4"><i class="fas fa-cogs text-indigo-600 ml-2"></i>בקרת סטטוס תחרות (לסבב הנוכחי)</h3>
+            <div class="flex flex-wrap gap-4 items-center">
+                <button onclick="setCompetitionStatus('submission')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-xl transition flex items-center gap-2 cursor-pointer">
+                    <i class="fas fa-cloud-upload-alt"></i> אפשר הכנת תוצרים (הזנת לינקים)
+                </button>
+                <button onclick="setCompetitionStatus('running')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-xl transition flex items-center gap-2 cursor-pointer">
+                    <i class="fas fa-play"></i> התחרות בעיצומה (נעילת קבוצות)
+                </button>
+                <button onclick="setCompetitionStatus('ending')" class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-4 rounded-xl transition flex items-center gap-2 cursor-pointer">
+                    <i class="fas fa-hourglass-half"></i> סיום תחרות (מתח ולחץ)
+                </button>
+                <button onclick="setCompetitionStatus('published')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-xl transition flex items-center gap-2 cursor-pointer">
+                    <i class="fas fa-eye"></i> פרסום תוצאות וניקוד
+                </button>
+                <div class="mr-auto bg-slate-100 px-4 py-2 rounded-xl border border-slate-200">
+                    <span class="text-sm font-medium text-slate-600">סטטוס נוכחי:</span>
+                    <span id="adminStatusLabel" class="font-bold text-indigo-600">טעינה...</span>
+                </div>
+            </div>
+        </div>
+
+        <main class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div class="lg:col-span-8 space-y-8">
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                    <div class="flex flex-wrap items-end gap-6">
+                        <div class="flex-1 min-w-[200px]">
+                            <label class="block text-sm font-bold text-slate-700 mb-2">בחר סבב תחרות:</label>
+                            <select id="roundSelect" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none" onchange="changeRound(this.value)">
+                            </select>
+                        </div>
+                        <div class="flex-[2] min-w-[300px]">
+                            <label class="block text-sm font-bold text-slate-700 mb-2">הוספת קבוצה חדשה (שמות מופרדים בפסיקים):</label>
+                            <div class="flex gap-2">
+                                <input type="text" id="memberNamesInput" placeholder="לדוגמה: שי, ליאור, איתן" class="flex-1 bg-slate-50 border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none">
+                                <button onclick="addNewGroup()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl transition flex items-center gap-2 whitespace-nowrap cursor-pointer">
+                                    <i class="fas fa-plus"></i> הוסף קבוצה
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+                    <h2 class="text-lg font-bold mb-6 flex items-center gap-2 text-amber-500">
+                        <i class="fas fa-trophy"></i> מובילי הסבב
+                    </h2>
+                    <div id="podiumContainer" class="flex justify-center items-end gap-4 h-56 bg-slate-50 rounded-2xl border border-slate-100 pb-4">
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                        <h2 class="font-bold text-slate-800">טבלת ניקוד סבב <span id="currentRoundLabel">1</span> (ניהול ושופטים)</h2>
+                        <span class="text-xs font-medium bg-slate-200 px-2 py-1 rounded text-slate-600">עדכון חי</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-right border-collapse min-w-[750px]">
+                            <thead>
+                                <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 text-sm">
+                                    <th class="p-4 font-bold">קבוצה</th>
+                                    <th class="p-4 font-bold">משתתפים</th>
+                                    <th class="p-4 font-bold text-center">התחלה (20%)</th>
+                                    <th class="p-4 font-bold text-center">סטוריבורד (20%)</th>
+                                    <th class="p-4 font-bold text-center">סוף (30%)</th>
+                                    <th class="p-4 font-bold text-center">פרומו (30%)</th>
+                                    <th class="p-4 font-bold text-center">ציון סופי</th>
+                                    <th class="p-4 font-bold text-center">תוצר</th>
+                                    <th class="p-4 font-bold">הערות</th>
+                                    <th class="p-4 font-bold text-center">פעולות</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultsTableBody" class="divide-y divide-slate-100">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-4">
+                <div class="bg-white rounded-2xl p-6 shadow-xl border border-indigo-100 sticky top-24">
+                    <div id="formHeader" class="mb-6">
+                        <h2 class="text-2xl font-black text-slate-900" id="judgingTitle">בחר קבוצה</h2>
+                        <p class="text-indigo-600 font-medium text-sm" id="judgingMembers">ממתין לבחירה...</p>
+                    </div>
+
+                    <div id="judgingFormContent" class="space-y-5">
+                        <!-- תיקון 3: אפשרות לערוך את שמות חברי הקבוצה מהאדמין -->
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <label class="block text-sm font-bold text-slate-700 mb-2">עריכת שמות המשתתפים:</label>
+                            <input type="text" id="editGroupMembersInput" class="w-full bg-white border border-slate-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                                <label class="flex justify-between text-sm font-bold mb-2">
+                                    <span>1. תמונת התחלה (20%)</span>
+                                    <span class="text-indigo-600 font-bold" id="val1">1</span>
+                                </label>
+                                <input type="range" id="crit1" min="1" max="10" step="1" value="1" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600" oninput="document.getElementById('val1').innerText = this.value">
+                            </div>
+
+                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                                <label class="flex justify-between text-sm font-bold mb-2">
+                                    <span>2. סטוריבורד (20%)</span>
+                                    <span class="text-indigo-600 font-bold" id="val2">1</span>
+                                </label>
+                                <input type="range" id="crit2" min="1" max="10" step="1" value="1" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600" oninput="document.getElementById('val2').innerText = this.value">
+                            </div>
+
+                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                                <label class="flex justify-between text-sm font-bold mb-2">
+                                    <span>3. תמונת סוף (30%)</span>
+                                    <span class="text-indigo-600 font-bold" id="val3">1</span>
+                                </label>
+                                <input type="range" id="crit3" min="1" max="10" step="1" value="1" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600" oninput="document.getElementById('val3').innerText = this.value">
+                            </div>
+
+                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                                <label class="flex justify-between text-sm font-bold mb-2">
+                                    <span>4. סרטון פרומו (30%)</span>
+                                    <span class="text-indigo-600 font-bold" id="val4">1</span>
+                                </label>
+                                <input type="range" id="crit4" min="1" max="10" step="1" value="1" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600" oninput="document.getElementById('val4').innerText = this.value">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-bold mb-2 text-slate-700">הערות השופט:</label>
+                            <textarea id="groupNotes" rows="3" placeholder="מה דעתך על הפרויקט?" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none text-sm"></textarea>
+                        </div>
+
+                        <button onclick="saveAndNext()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-4 rounded-xl transition shadow-lg flex justify-center items-center gap-3 cursor-pointer">
+                            <i class="fas fa-save"></i> שמור ועבור לבא
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- תצוגה 2: חיפוש קבוצה בסבב ספציפי (#round-X) -->
+    <div id="roundUserView" class="view-section container mx-auto px-4 max-w-2xl">
+        <div class="bg-white rounded-2xl p-8 shadow-xl border border-slate-200 text-center">
+            <h2 class="text-3xl font-black text-indigo-900 mb-2">ברוכים הבאים לסבב <span id="userRoundNumberLabel"></span></h2>
+            <p class="text-slate-600 mb-8 font-medium">מצאו את הקבוצה שלכם כדי להתחיל או לצפות בתוצאות</p>
+
+            <!-- תיבת החיפוש הדינמית -->
+            <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 text-right space-y-4">
+                <label id="searchLabel" class="block font-bold text-slate-800">הזינו שם של אחד מחברי הקבוצה:</label>
+                <div class="flex gap-2">
+                    <input type="text" id="groupSearchInput" placeholder="לדוגמה: איתן" class="flex-1 bg-white border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none">
+                    <button onclick="searchGroupStep()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-6 rounded-xl transition cursor-pointer">המשך</button>
+                </div>
+                <div id="searchFeedback" class="text-sm font-medium text-amber-600 hidden"></div>
+                <button onclick="resetSearch()" class="text-xs text-slate-400 underline hover:text-slate-600 cursor-pointer block">אפס חיפוש</button>
+            </div>
+
+            <!-- רשימת קבוצות מלאה לגיבוי מהיר לחציה -->
+            <div class="mt-8 text-right">
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">או בחרו ישירות מהרשימה:</h4>
+                <div id="quickGroupLinks" class="grid grid-cols-2 gap-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- תצוגה 3: עמוד קבוצה ספציפי (#round-X_team-Y) -->
+    <div id="teamView" class="view-section container mx-auto px-4 max-w-3xl">
+        <div class="bg-white rounded-2xl p-8 shadow-xl border border-indigo-100 space-y-8">
+            <div class="border-b border-slate-100 pb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <span class="bg-indigo-50 text-indigo-700 font-bold px-3 py-1 rounded-full text-xs" id="teamViewRoundLabel"></span>
+                    <h2 class="text-3xl font-black text-slate-900 mt-2" id="teamViewNameLabel"></h2>
+                    <p class="text-slate-500 font-medium" id="teamViewMembersLabel"></p>
+                </div>
+                <a href="#" id="backToRoundBtn" class="text-sm font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1"><i class="fas fa-arrow-left"></i> חזרה לחיפוש</a>
+            </div>
+
+            <!-- מצבי תחרות לקבוצה -->
             
-            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-                <div class="flex flex-wrap items-end gap-6">
-                    <div class="flex-1 min-w-[200px]">
-                        <label class="block text-sm font-bold text-slate-700 mb-2">בחר סבב תחרות:</label>
-                        <select id="roundSelect" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none" onchange="changeRound()">
-                        </select>
+            <!-- תיקון 1: מצב הכנת תוצרים (הזנת קישור פעילה) -->
+            <div id="statusSubmissionSection" class="hidden bg-indigo-50 border border-indigo-200 rounded-2xl p-6 text-center space-y-4">
+                <div class="text-indigo-600 text-4xl animate-bounce"><i class="fas fa-cloud-upload-alt"></i></div>
+                <h3 class="text-xl font-black text-indigo-950">חלון הגשת תוצרים פתוח!</h3>
+                <p class="text-sm text-indigo-700 max-w-md mx-auto">אנא הזינו את הקישור לתוצר הסופי שלכם בתיבה מטה כדי שהשופטים יוכלו לצפות בו בזמן אמת.</p>
+                
+                <div class="max-w-md mx-auto bg-white p-4 rounded-xl shadow-sm border border-slate-200 text-right mt-4">
+                    <label class="block text-sm font-bold text-slate-700 mb-2">קישור לתוצר הסופי שלכם (URL):</label>
+                    <div class="flex gap-2">
+                        <input type="url" id="teamProductUrlInput" placeholder="https://..." class="flex-1 bg-slate-50 border border-slate-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
+                        <button onclick="saveProductUrl()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-lg text-sm transition cursor-pointer">שמור קישור</button>
                     </div>
-                    <div class="flex-[2] min-w-[300px]">
-                        <label class="block text-sm font-bold text-slate-700 mb-2">הוספת קבוצה חדשה (שמות המשתתפים):</label>
-                        <div class="flex gap-2">
-                            <input type="text" id="memberNamesInput" placeholder="לדוגמה: ישראל, נועה ואבי..." class="flex-1 bg-slate-50 border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none">
-                            <button onclick="addNewGroup()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl transition flex items-center gap-2 whitespace-nowrap cursor-pointer">
-                                <i class="fas fa-plus"></i> הוסף קבוצה
-                            </button>
-                        </div>
-                    </div>
+                    <p id="productUrlStatus" class="text-xs font-medium text-emerald-600 mt-1 hidden">הקישור נשמר בהצלחה!</p>
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-                <h2 class="text-lg font-bold mb-6 flex items-center gap-2 text-amber-500">
-                    <i class="fas fa-trophy"></i> מובילי הסבב
-                </h2>
-                <div id="podiumContainer" class="flex justify-center items-end gap-4 h-56 bg-slate-50 rounded-2xl border border-slate-100 pb-4">
-                </div>
+            <!-- תיקון 1: מצב התחרות בעיצומה (הקבוצות חסומות מלערוך או להזין קישור) -->
+            <div id="statusRunningSection" class="hidden bg-blue-50 border border-blue-200 rounded-2xl p-6 text-center space-y-4">
+                <div class="text-blue-600 text-4xl animate-pulse"><i class="fas fa-laptop-code"></i></div>
+                <h3 class="text-xl font-black text-blue-900">התחרות בעיצומה!</h3>
+                <p class="text-sm text-blue-700 max-w-md mx-auto">עבדו חזק על הפרויקטים שלכם. חלון העריכה והגשת הקישורים סגור בשלב זה.</p>
+                
+                <div id="savedUrlDisplayContainer" class="text-xs text-slate-500 bg-slate-100 p-2 rounded-lg inline-block"></div>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                    <h2 class="font-bold text-slate-800">טבלת ניקוד סבב <span id="currentRoundLabel">1</span></h2>
-                    <span class="text-xs font-medium bg-slate-200 px-2 py-1 rounded text-slate-600">עדכון חי</span>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-right border-collapse min-w-[750px]">
-                        <thead>
-                            <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 text-sm">
-                                <th class="p-4 font-bold">קבוצה</th>
-                                <th class="p-4 font-bold">משתתפים</th>
-                                <th class="p-4 font-bold text-center">התחלה (20%)</th>
-                                <th class="p-4 font-bold text-center">סטוריבורד (20%)</th>
-                                <th class="p-4 font-bold text-center">סוף (30%)</th>
-                                <th class="p-4 font-bold text-center">פרומו (30%)</th>
-                                <th class="p-4 font-bold text-center">ציון סופי</th>
-                                <th class="p-4 font-bold">הערות</th>
-                                <th class="p-4 font-bold text-center">פעולות</th>
-                            </tr>
-                        </thead>
-                        <tbody id="resultsTableBody" class="divide-y divide-slate-100">
-                        </tbody>
-                    </table>
-                </div>
+            <!-- מצב: סיום תחרות / רגעי לחץ -->
+            <div id="statusEndingSection" class="hidden bg-amber-50 border border-amber-200 rounded-2xl p-8 text-center space-y-3">
+                <div class="text-amber-500 text-5xl"><i class="fas fa-hourglass-half"></i></div>
+                <h3 class="text-2xl font-black text-amber-900">ממש עוד רגע תראו את התוצאות...</h3>
+                <p class="text-lg font-bold text-indigo-900">איזה לחץ!</p>
+                <p class="text-sm text-slate-600">השופטים מסיימים להקליד את הציונים האחרונים ומשקללים את הנתונים. הישארו מעודכנים.</p>
             </div>
-        </div>
 
-        <div class="lg:col-span-4">
-            <div class="bg-white rounded-2xl p-6 shadow-xl border border-indigo-100 sticky top-24">
-                <div id="formHeader" class="mb-6">
-                    <h2 class="text-2xl font-black text-slate-900" id="judgingTitle">בחר קבוצה</h2>
-                    <p class="text-indigo-600 font-medium text-sm" id="judgingMembers">ממתין לבחירה...</p>
+            <!-- מצב: פרסום תוצאות -->
+            <div id="statusPublishedSection" class="hidden space-y-6">
+                <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 text-center">
+                    <div class="text-emerald-500 text-4xl mb-2"><i class="fas fa-check-circle"></i></div>
+                    <h3 class="text-xl font-black text-emerald-900">התוצאות פורסמו!</h3>
+                    <p class="text-sm text-emerald-700">כל הכבוד לכל המשתתפים על העבודה היצירתיות וההתמדה.</p>
                 </div>
 
-                <div id="judgingFormContent" class="space-y-5">
-                    <div class="space-y-4">
-                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
-                            <label class="flex justify-between text-sm font-bold mb-2">
-                                <span>1. תמונת התחלה (20%)</span>
-                                <span class="text-indigo-600 font-bold" id="val1">1</span>
-                            </label>
-                            <input type="range" id="crit1" min="1" max="10" step="1" value="1" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600" oninput="updateVal('val1', this.value)">
-                        </div>
-
-                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
-                            <label class="flex justify-between text-sm font-bold mb-2">
-                                <span>2. סטוריבורד (20%)</span>
-                                <span class="text-indigo-600 font-bold" id="val2">1</span>
-                            </label>
-                            <input type="range" id="crit2" min="1" max="10" step="1" value="1" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600" oninput="updateVal('val2', this.value)">
-                        </div>
-
-                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
-                            <label class="flex justify-between text-sm font-bold mb-2">
-                                <span>3. תמונת סוף (30%)</span>
-                                <span class="text-indigo-600 font-bold" id="val3">1</span>
-                            </label>
-                            <input type="range" id="crit3" min="1" max="10" step="1" value="1" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600" oninput="updateVal('val3', this.value)">
-                        </div>
-
-                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
-                            <label class="flex justify-between text-sm font-bold mb-2">
-                                <span>4. סרטון פרומו (30%)</span>
-                                <span class="text-indigo-600 font-bold" id="val4">1</span>
-                            </label>
-                            <input type="range" id="crit4" min="1" max="10" step="1" value="1" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-indigo-600" oninput="updateVal('val4', this.value)">
-                        </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-slate-50 border border-slate-200 p-5 rounded-xl text-center">
+                        <span class="text-sm text-slate-500 font-medium">הציון המשוקלל שלכם</span>
+                        <div class="text-5xl font-black text-indigo-600 my-2" id="teamViewFinalScore">-</div>
+                        <p class="text-xs text-slate-400">הציון מורכב מ-20% התחלה, 20% סטוריבורד, 30% סוף ו-30% פרומו.</p>
                     </div>
-
-                    <div>
-                        <label class="block text-sm font-bold mb-2 text-slate-700">הערות השופט:</label>
-                        <textarea id="groupNotes" rows="3" placeholder="מה דעתך על הפרויקט?" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 outline-none text-sm"></textarea>
+                    <div class="bg-slate-50 border border-slate-200 p-5 rounded-xl">
+                        <span class="text-sm text-slate-500 font-bold block mb-2">הערות השופטים והצוות:</span>
+                        <p class="text-slate-700 text-sm whitespace-pre-line leading-relaxed" id="teamViewNotes">-</p>
                     </div>
+                </div>
 
-                    <button onclick="saveAndNext()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-4 rounded-xl transition shadow-lg flex justify-center items-center gap-3 cursor-pointer">
-                        <i class="fas fa-save"></i> שמור ועבור לבא
-                    </button>
+                <div class="bg-white border border-slate-200 rounded-xl p-4">
+                    <h4 class="font-bold text-sm text-slate-800 mb-3">פירוט הניקוד לפי קריטריונים:</h4>
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                        <div class="p-3 bg-slate-50 rounded-lg"><p class="text-xs text-slate-400">תמונת התחלה</p><p class="font-bold text-slate-700" id="c1Score">-</p></div>
+                        <div class="p-3 bg-slate-50 rounded-lg"><p class="text-xs text-slate-400">סטוריבורד</p><p class="font-bold text-slate-700" id="c2Score">-</p></div>
+                        <div class="p-3 bg-slate-50 rounded-lg"><p class="text-xs text-slate-400">תמונת סוף</p><p class="font-bold text-slate-700" id="c3Score">-</p></div>
+                        <div class="p-3 bg-slate-50 rounded-lg"><p class="text-xs text-slate-400">סרטון פרומו</p><p class="font-bold text-slate-700" id="c4Score">-</p></div>
+                    </div>
                 </div>
             </div>
         </div>
-    </main>
+    </div>
 
+    <!-- סקריפט מודולרי מרכזי מחובר ל-Firebase Realtime Database -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, onValue, push, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -158,23 +298,36 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
+        // משתני מצב גלובליים
         let currentRound = 1;
         let activeGroupKey = null;
         let allGroups = {};
+        let roundStatus = 'submission'; // submission, running, ending, published
 
-        // Expose functions to window
+        // משתנים ייעודיים לניהול החיפוש החכם
+        let searchCurrentMatches = [];
+        let searchCollectedNames = [];
+
+        // חשיפת פונקציות לחלון הגלובלי (עבור תאימות ל-inline Event Listeners של HTML)
         window.changeRound = changeRound;
         window.addNewGroup = addNewGroup;
         window.loadGroup = loadGroup;
         window.saveAndNext = saveAndNext;
-        window.updateVal = (id, val) => document.getElementById(id).innerText = val;
+        window.setCompetitionStatus = setCompetitionStatus;
+        window.searchGroupStep = searchGroupStep;
+        window.resetSearch = resetSearch;
+        window.saveProductUrl = saveProductUrl;
 
-        // Init
+        // האזנה לשינויי Hash בכתובת ה-URL (מנגנון הניתוב)
+        window.addEventListener('hashchange', handleRouting);
+        
+        // אתחול ראשוני
         buildRoundOptions();
-        listenToData();
+        handleRouting();
 
         function buildRoundOptions() {
             const select = document.getElementById("roundSelect");
+            select.innerHTML = "";
             for (let i = 1; i <= 10; i++) {
                 const opt = document.createElement("option");
                 opt.value = i; opt.text = `סבב ${i}`;
@@ -182,34 +335,140 @@
             }
         }
 
-        function changeRound() {
-            currentRound = document.getElementById("roundSelect").value;
+        // תיקון 2: ניתוח ה-Hash, הצגת המסך והתאמת כותרות האתר דינמית
+        function handleRouting() {
+            const hash = window.location.hash || '#round-1';
+            
+            // הסתרת כל המסכים תחילה
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+
+            const titleEl = document.getElementById('pageTitle');
+            const mainHeaderTitleEl = document.getElementById('mainHeaderTitle');
+            const mainHeaderSubtitleEl = document.getElementById('mainHeaderSubtitle');
+
+            if (hash === '#admin') {
+                document.getElementById('adminView').classList.add('active');
+                
+                // כותרות מצב אדמין/שפיטה
+                titleEl.innerText = "שפיטת תחרות האקטון AI - בית מילר";
+                mainHeaderTitleEl.innerText = "שפיטת תחרות האקטון AI";
+                mainHeaderSubtitleEl.innerText = "פאנל ניהול ושופטים - בית מילר";
+
+                listenToData();
+            } 
+            else {
+                // כותרות האתר הרגיל קבוצות ומשתמשים
+                titleEl.innerText = "תחרות האקטון AI - - בית מילר";
+                mainHeaderTitleEl.innerText = "תחרות האקטון AI";
+                mainHeaderSubtitleEl.innerText = "סדנה טכנולוגית בבית מילר";
+
+                if (hash.startsWith('#round-') && hash.includes('_team-')) {
+                    // עמוד קבוצה ספציפי
+                    document.getElementById('teamView').classList.add('active');
+                    const parts = hash.replace('#round-', '').split('_team-');
+                    currentRound = parseInt(parts[0]) || 1;
+                    const teamId = parseInt(parts[1]);
+                    listenToTeamData(teamId);
+                } 
+                else if (hash.startsWith('#round-')) {
+                    // עמוד חיפוש קבוצה
+                    document.getElementById('roundUserView').classList.add('active');
+                    currentRound = parseInt(hash.replace('#round-', '')) || 1;
+                    document.getElementById('userRoundNumberLabel').innerText = currentRound;
+                    document.getElementById('backToRoundBtn').href = `#round-${currentRound}`;
+                    resetSearch();
+                    listenToData();
+                }
+            }
+        }
+
+        function changeRound(roundNum) {
+            currentRound = roundNum;
             document.getElementById("currentRoundLabel").innerText = currentRound;
             activeGroupKey = null;
             resetForm();
             listenToData();
         }
 
+        // האזנה לנתוני הסבב ב-Firebase
         function listenToData() {
             const roundRef = ref(db, `hackathon/round_${currentRound}`);
             onValue(roundRef, (snapshot) => {
                 allGroups = snapshot.val() || {};
                 renderUI();
+                if (window.location.hash.startsWith('#round-') && !window.location.hash.includes('_team-')) {
+                    renderQuickLinks();
+                }
+            });
+
+            const statusRef = ref(db, `hackathon_status/round_${currentRound}`);
+            onValue(statusRef, (snapshot) => {
+                roundStatus = snapshot.val() || 'submission';
+                updateStatusUI();
             });
         }
 
+        // האזנה לעמוד קבוצה ספציפי בזמן אמת
+        function listenToTeamData(teamId) {
+            const statusRef = ref(db, `hackathon_status/round_${currentRound}`);
+            onValue(statusRef, (snapshot) => {
+                roundStatus = snapshot.val() || 'submission';
+                
+                const roundRef = ref(db, `hackathon/round_${currentRound}`);
+                onValue(roundRef, (snap) => {
+                    const groups = snap.val() || {};
+                    const groupPair = Object.entries(groups).find(([k, v]) => v.id === teamId);
+                    
+                    if (groupPair) {
+                        const [key, group] = groupPair;
+                        activeGroupKey = key;
+                        renderTeamSingleView(group);
+                    } else {
+                        document.getElementById('teamViewNameLabel').innerText = "קבוצה לא נמצאה";
+                    }
+                });
+            });
+        }
+
+        // עדכון הסטטוס באדמין
+        function updateStatusUI() {
+            const adminLabel = document.getElementById('adminStatusLabel');
+            if (!adminLabel) return;
+
+            if (roundStatus === 'submission') {
+                adminLabel.innerText = "הכנת תוצרים (הזנת לינקים פעילה לקבוצות)";
+                adminLabel.className = "font-bold text-indigo-600";
+            } else if (roundStatus === 'running') {
+                adminLabel.innerText = "התחרות בעיצומה (קבוצות חסומות מעריכה)";
+                adminLabel.className = "font-bold text-blue-600";
+            } else if (roundStatus === 'ending') {
+                adminLabel.innerText = "סיום תחרות (ממש עוד רגע / איזה לחץ)";
+                adminLabel.className = "font-bold text-amber-600";
+            } else if (roundStatus === 'published') {
+                adminLabel.innerText = "תוצאות וניקוד פורסמו לכולם";
+                adminLabel.className = "font-bold text-emerald-600";
+            }
+        }
+
+        async function setCompetitionStatus(newStatus) {
+            await set(ref(db, `hackathon_status/round_${currentRound}`), newStatus);
+        }
+
+        // הוספת קבוצה חדשה
         async function addNewGroup() {
             const names = document.getElementById("memberNamesInput").value.trim();
             if (!names) return alert("אנא הזן את שמות חברי הקבוצה");
 
+            const formattedNames = names.split(',').map(n => n.trim()).filter(n => n).join(', ');
             const groupCount = Object.keys(allGroups).length + 1;
             const newGroup = {
                 id: groupCount,
                 name: `קבוצה ${groupCount}`,
-                members: names,
+                members: formattedNames,
                 crit1: 0, crit2: 0, crit3: 0, crit4: 0,
                 finalScore: 0,
-                notes: ""
+                notes: "",
+                productUrl: ""
             };
 
             const roundRef = ref(db, `hackathon/round_${currentRound}`);
@@ -220,15 +479,17 @@
             activeGroupKey = newGroupRef.key;
         }
 
+        // רינדור ממשק המנהל
         function renderUI() {
             const tbody = document.getElementById("resultsTableBody");
-            tbody.innerHTML = "";
+            if (!tbody) return;
             
+            tbody.innerHTML = "";
             const groupsArr = Object.entries(allGroups).map(([key, val]) => ({ key, ...val }));
             groupsArr.sort((a, b) => a.id - b.id);
 
             if (groupsArr.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="9" class="p-8 text-center text-slate-400 text-sm">אין קבוצות בסבב זה. הזן שמות משתתפים ולחץ על 'הוסף קבוצה' למעלה.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="10" class="p-8 text-center text-slate-400 text-sm">אין קבוצות בסבב זה. הזן שמות משתתפים ולחץ על 'הוסף קבוצה' למעלה.</td></tr>`;
             }
 
             groupsArr.forEach(group => {
@@ -236,6 +497,11 @@
                 const tr = document.createElement("tr");
                 tr.className = `hover:bg-slate-50 transition cursor-pointer ${isSelected ? 'bg-indigo-50/80 font-medium border-l-4 border-l-indigo-600' : ''}`;
                 tr.onclick = () => loadGroup(group.key);
+                
+                const linkIcon = group.productUrl 
+                    ? `<a href="${group.productUrl}" target="_blank" class="text-xl inline-block hover:scale-125 transition" title="פתח תוצר קבוצה" onclick="event.stopPropagation();">🔗</a>` 
+                    : `<span class="text-slate-300 text-xs">-</span>`;
+
                 tr.innerHTML = `
                     <td class="p-4 font-bold text-indigo-900">${group.name}</td>
                     <td class="p-4 text-sm text-slate-600">${group.members}</td>
@@ -244,19 +510,20 @@
                     <td class="p-4 text-center text-sm font-semibold text-slate-500">${group.crit3 || 0}/10</td>
                     <td class="p-4 text-center text-sm font-semibold text-slate-500">${group.crit4 || 0}/10</td>
                     <td class="p-4 text-center"><span class="bg-indigo-100 text-indigo-700 font-bold px-3 py-1 rounded-full text-sm">${group.finalScore || 0}</span></td>
+                    <td class="p-4 text-center">${linkIcon}</td>
                     <td class="p-4 text-xs text-slate-500 max-w-[150px] truncate" title="${group.notes || ''}">${group.notes || '-'}</td>
                     <td class="p-4 text-center"><button class="text-indigo-600 hover:scale-110 transition"><i class="fas fa-edit"></i></button></td>
                 `;
                 tbody.appendChild(tr);
             });
 
-            // Podium
             const sorted = groupsArr.filter(g => g.finalScore > 0).sort((a, b) => b.finalScore - a.finalScore);
             renderPodium(sorted);
         }
 
         function renderPodium(sorted) {
             const container = document.getElementById("podiumContainer");
+            if (!container) return;
             container.innerHTML = "";
             const layout = [ {i:1, h:'h-28', c:'bg-slate-300'}, {i:0, h:'h-40', c:'bg-amber-400'}, {i:2, h:'h-20', c:'bg-amber-600'} ];
             
@@ -279,11 +546,16 @@
             });
         }
 
+        // טעינת קבוצה ושמותיה לטובת עריכה ושפיטה באדמין
         function loadGroup(key) {
             activeGroupKey = key;
             const g = allGroups[key];
             document.getElementById("judgingTitle").innerText = g.name;
             document.getElementById("judgingMembers").innerText = g.members;
+            
+            // תיקון 3: השמת שמות חברי הקבוצה הנוכחיים בתיבת העריכה של האדמין
+            document.getElementById("editGroupMembersInput").value = g.members || "";
+
             document.getElementById("crit1").value = g.crit1 || 1;
             document.getElementById("crit2").value = g.crit2 || 1;
             document.getElementById("crit3").value = g.crit3 || 1;
@@ -296,9 +568,11 @@
             renderUI();
         }
 
+        // שמירת ציונים + עדכון שמות חברי קבוצה ערוכים
         async function saveAndNext() {
             if (!activeGroupKey) return alert("בחר קבוצה לשיפוט תחילה");
             
+            const editedMembers = document.getElementById("editGroupMembersInput").value.trim();
             const c1 = parseInt(document.getElementById("crit1").value);
             const c2 = parseInt(document.getElementById("crit2").value);
             const c3 = parseInt(document.getElementById("crit3").value);
@@ -307,26 +581,145 @@
             
             const finalScore = ((c1*0.2) + (c2*0.2) + (c3*0.3) + (c4*0.3)).toFixed(2);
 
+            // עדכון הנתונים (כולל השמות הערוכים החדשים) ב-Firebase
             await update(ref(db, `hackathon/round_${currentRound}/${activeGroupKey}`), {
+                members: editedMembers,
                 crit1: c1, crit2: c2, crit3: c3, crit4: c4,
                 notes: notes,
                 finalScore: parseFloat(finalScore)
             });
 
-            // Find next
             const keys = Object.keys(allGroups);
             const currentIndex = keys.indexOf(activeGroupKey);
             if (currentIndex < keys.length - 1) {
                 loadGroup(keys[currentIndex + 1]);
             } else {
-                alert("סיימת את כל הקבוצות הקיימות בסבב זה!");
+                alert("שינויים נשמרו! סיימת את כל הקבוצות הקיימות בסבב זה.");
             }
         }
 
         function resetForm() {
             document.getElementById("judgingTitle").innerText = "בחר קבוצה";
             document.getElementById("judgingMembers").innerText = "ממתין לבחירה...";
+            document.getElementById("editGroupMembersInput").value = "";
             document.getElementById("groupNotes").value = "";
+        }
+
+        /* מנגנון חיפוש קבוצה חכם */
+        function resetSearch() {
+            searchCurrentMatches = Object.entries(allGroups).map(([k, v]) => ({ key: k, ...v }));
+            searchCollectedNames = [];
+            const feedback = document.getElementById('searchFeedback');
+            if(feedback) feedback.classList.add('hidden');
+            document.getElementById('groupSearchInput').value = "";
+            document.getElementById('searchLabel').innerText = "הזינו שם של אחד מחברי הקבוצה:";
+        }
+
+        function searchGroupStep() {
+            const inputEl = document.getElementById('groupSearchInput');
+            const feedbackEl = document.getElementById('searchFeedback');
+            const labelEl = document.getElementById('searchLabel');
+            const nameSearched = inputEl.value.trim();
+
+            if (!nameSearched) return alert("אנא הזינו שם לחיפוש");
+
+            searchCollectedNames.push(nameSearched);
+
+            searchCurrentMatches = searchCurrentMatches.filter(group => {
+                const membersArray = group.members.split(',').map(m => m.trim().toLowerCase());
+                return membersArray.some(member => member.includes(nameSearched.toLowerCase()));
+            });
+
+            inputEl.value = "";
+
+            if (searchCurrentMatches.length === 0) {
+                feedbackEl.innerText = `לא נמצאה קבוצה המתאימה לשמות: ${searchCollectedNames.join(' + ')}. אנא נסו שוב.`;
+                feedbackEl.classList.remove('hidden');
+                resetSearch();
+            } 
+            else if (searchCurrentMatches.length === 1) {
+                const targetGroup = searchCurrentMatches[0];
+                window.location.hash = `#round-${currentRound}_team-${targetGroup.id}`;
+            } 
+            else {
+                feedbackEl.innerText = `נמצאו מספר קבוצות אפשריות המכילות את השם.`;
+                feedbackEl.classList.remove('hidden');
+                labelEl.innerText = `הזינו שם נוסף של חבר קבוצה (חוץ מ-${searchCollectedNames.join(', ')}):`;
+            }
+        }
+
+        function renderQuickLinks() {
+            const container = document.getElementById('quickGroupLinks');
+            if(!container) return;
+            container.innerHTML = "";
+            
+            Object.values(allGroups).forEach(group => {
+                const btn = document.createElement('a');
+                btn.href = `#round-${currentRound}_team-${group.id}`;
+                btn.className = "bg-white border border-slate-200 text-slate-700 p-2 rounded-xl text-xs font-bold hover:bg-indigo-50 hover:text-indigo-600 transition block text-center truncate";
+                btn.innerText = group.name;
+                container.appendChild(btn);
+            });
+        }
+
+        /* רינדור ממשק קבוצה בודדת */
+        function renderTeamSingleView(group) {
+            document.getElementById('teamViewRoundLabel').innerText = `סבב ${currentRound}`;
+            document.getElementById('teamViewNameLabel').innerText = group.name;
+            document.getElementById('teamViewMembersLabel').innerText = `משתתפים: ${group.members}`;
+
+            // הסתרת כל הסקשנים תחילה
+            document.getElementById('statusSubmissionSection').classList.add('hidden');
+            document.getElementById('statusRunningSection').classList.add('hidden');
+            document.getElementById('statusEndingSection').classList.add('hidden');
+            document.getElementById('statusPublishedSection').classList.add('hidden');
+
+            const urlInput = document.getElementById('teamProductUrlInput');
+            if (urlInput && group.productUrl) {
+                urlInput.value = group.productUrl;
+            }
+
+            // תיקון 1: התאמת פיצ'רים וטקסטים לפי 4 הסטטוסים המופרדים
+            if (roundStatus === 'submission') {
+                document.getElementById('statusSubmissionSection').classList.remove('hidden');
+            } 
+            else if (roundStatus === 'running') {
+                document.getElementById('statusRunningSection').classList.remove('hidden');
+                const displayContainer = document.getElementById('savedUrlDisplayContainer');
+                if (group.productUrl) {
+                    displayContainer.innerHTML = `הקישור שהגשתם וננעל: <a href="${group.productUrl}" target="_blank" class="text-blue-600 underline font-bold">${group.productUrl}</a>`;
+                } else {
+                    displayContainer.innerText = "לא הוגש קישור לפני נעילת התחרות.";
+                }
+            } 
+            else if (roundStatus === 'ending') {
+                document.getElementById('statusEndingSection').classList.remove('hidden');
+            } 
+            else if (roundStatus === 'published') {
+                document.getElementById('statusPublishedSection').classList.remove('hidden');
+                
+                document.getElementById('teamViewFinalScore').innerText = group.finalScore || '0';
+                document.getElementById('teamViewNotes').innerText = group.notes || 'אין הערות צוות.';
+                
+                document.getElementById('c1Score').innerText = `${group.crit1 || 0}/10`;
+                document.getElementById('c2Score').innerText = `${group.crit2 || 0}/10`;
+                document.getElementById('c3Score').innerText = `${group.crit3 || 0}/10`;
+                document.getElementById('c4Score').innerText = `${group.crit4 || 0}/10`;
+            }
+        }
+
+        async function saveProductUrl() {
+            const url = document.getElementById('teamProductUrlInput').value.trim();
+            if (!url) return alert("אנא הזינו כתובת קישור תקינה");
+            if (!activeGroupKey) return;
+
+            await update(ref(db, `hackathon/round_${currentRound}/${activeGroupKey}`), {
+                productUrl: url
+            });
+
+            const statusText = document.getElementById('productUrlStatus');
+            statusText.classList.remove('hidden');
+            setTimeout(() => statusText.classList.add('hidden'), 3000);
         }
     </script>
 </body>
