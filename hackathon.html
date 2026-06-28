@@ -19,38 +19,83 @@
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen pb-12">
 
-    <!-- ראש העמוד קבוע לכל התצוגות (הכותרות משתנות דינמית ב-JS) -->
     <header class="bg-white shadow-md border-b border-indigo-100 py-4 mb-8 sticky top-0 z-50">
         <div class="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
             <img src="https://bmiller.co.il/wp-content/uploads/2026/06/Miller-logos-01-1024x369.png" alt="בית מילר" class="h-14 object-contain">
-            <div class="text-center md:text-right">
-                <h1 class="text-2xl font-black text-indigo-900" id="mainHeaderTitle">תחרות האקטון AI</h1>
-                <p class="text-sm text-indigo-600 font-medium" id="mainHeaderSubtitle">סדנה טכנולוגית בבית מילר</p>
+            <div class="text-center md:text-right flex items-center gap-6 flex-col md:flex-row">
+                <div>
+                    <h1 class="text-2xl font-black text-indigo-900" id="mainHeaderTitle">תחרות האקטון AI</h1>
+                    <p class="text-sm text-indigo-600 font-medium" id="mainHeaderSubtitle">סדנה טכנולוגית בבית מילר</p>
+                </div>
+                <div id="globalTimerContainer" class="hidden bg-amber-500 text-white px-4 py-2 rounded-xl font-bold flex items-center gap-2 animate-pulse shadow-md">
+                    <i class="fas fa-clock"></i>
+                    <span class="text-xs">זמן נותר:</span>
+                    <span id="globalTimerDisplay" class="text-lg tracking-wider">00:00</span>
+                </div>
             </div>
         </div>
     </header>
 
-    <!-- תצוגה 1: פאנל מנהל ושופט (#admin) -->
+    <div id="welcomeView" class="view-section container mx-auto px-4 max-w-xl text-center">
+        <div class="bg-white rounded-2xl p-8 shadow-xl border border-slate-200">
+            <i class="fas fa-laptop-code text-5xl text-indigo-600 mb-4"></i>
+            <h2 class="text-2xl font-black text-slate-800 mb-2">ברוכים הבאים להאקטון AI</h2>
+            <p class="text-slate-600 mb-6">אנא בחרו את סבב התחרות הפעיל שלכם כדי להמשיך:</p>
+            <div id="activeRoundsSelectionList" class="space-y-3">
+                </div>
+        </div>
+    </div>
+
     <div id="adminView" class="view-section container mx-auto px-4">
-        <!-- סרגל בקרת סטטוס תחרות -->
-        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 mb-8">
-            <h3 class="text-lg font-bold text-slate-800 mb-4"><i class="fas fa-cogs text-indigo-600 ml-2"></i>בקרת סטטוס תחרות (לסבב הנוכחי)</h3>
-            <div class="flex flex-wrap gap-4 items-center">
-                <button onclick="setCompetitionStatus('submission')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-xl transition flex items-center gap-2 cursor-pointer">
-                    <i class="fas fa-cloud-upload-alt"></i> אפשר הכנת תוצרים (הזנת לינקים)
-                </button>
-                <button onclick="setCompetitionStatus('running')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-xl transition flex items-center gap-2 cursor-pointer">
-                    <i class="fas fa-play"></i> התחרות בעיצומה (נעילת קבוצות)
-                </button>
-                <button onclick="setCompetitionStatus('ending')" class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-4 rounded-xl transition flex items-center gap-2 cursor-pointer">
-                    <i class="fas fa-hourglass-half"></i> סיום תחרות (מתח ולחץ)
-                </button>
-                <button onclick="setCompetitionStatus('published')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-xl transition flex items-center gap-2 cursor-pointer">
-                    <i class="fas fa-eye"></i> פרסום תוצאות וניקוד
-                </button>
-                <div class="mr-auto bg-slate-100 px-4 py-2 rounded-xl border border-slate-200">
-                    <span class="text-sm font-medium text-slate-600">סטטוס נוכחי:</span>
-                    <span id="adminStatusLabel" class="font-bold text-indigo-600">טעינה...</span>
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 mb-8 grid grid-cols-1 xl:grid-cols-12 gap-6">
+            <div class="xl:col-span-8">
+                <h3 class="text-lg font-bold text-slate-800 mb-4"><i class="fas fa-cogs text-indigo-600 ml-2"></i>בקרת סטטוס תחרות (לסבב הנוכחי)</h3>
+                <div class="flex flex-wrap gap-3 items-center">
+                    <button onclick="setCompetitionStatus('submission')" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-xl transition flex items-center gap-2 cursor-pointer text-sm">
+                        <i class="fas fa-cloud-upload-alt"></i> אפשר הכנת תוצרים
+                    </button>
+                    <button onclick="setCompetitionStatus('running')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-xl transition flex items-center gap-2 cursor-pointer text-sm">
+                        <i class="fas fa-play"></i> התחרות בעיצומה
+                    </button>
+                    <button onclick="setCompetitionStatus('ending')" class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-4 rounded-xl transition flex items-center gap-2 cursor-pointer text-sm">
+                        <i class="fas fa-hourglass-half"></i> סיום תחרות
+                    </button>
+                    <button onclick="setCompetitionStatus('published')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded-xl transition flex items-center gap-2 cursor-pointer text-sm">
+                        <i class="fas fa-eye"></i> פרסום תוצאות
+                    </button>
+                    <div class="bg-slate-100 px-4 py-2 rounded-xl border border-slate-200 text-sm">
+                        <span class="text-slate-600">סטטוס:</span>
+                        <span id="adminStatusLabel" class="font-bold text-indigo-600">טעינה...</span>
+                    </div>
+                </div>
+                
+                <div class="mt-4 pt-4 border-t border-slate-100 flex flex-wrap gap-4 items-center">
+                    <div class="flex items-center gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200">
+                        <span class="text-sm font-bold text-slate-700">מצב סבב במערכת:</span>
+                        <button id="toggleActiveRoundBtn" onclick="toggleRoundActiveState()" class="font-bold py-1 px-4 rounded-lg text-sm transition cursor-pointer"></button>
+                    </div>
+                    <a href="#audience" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-xl transition flex items-center gap-2 text-sm cursor-pointer mr-auto">
+                        <i class="fas fa-users"></i> פתח מצב קהל
+                    </a>
+                </div>
+            </div>
+
+            <div class="xl:col-span-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                <h4 class="text-sm font-bold text-slate-800 mb-3"><i class="fas fa-stopwatch text-amber-500 ml-1"></i>ניהול טיימר סבב</h4>
+                <div class="space-y-3">
+                    <div class="flex gap-2">
+                        <input type="number" id="timerMinutesInput" value="60" min="1" class="w-20 bg-white border border-slate-300 rounded-lg p-2 text-center font-bold outline-none focus:ring-2 focus:ring-indigo-500 text-sm">
+                        <span class="text-sm self-center text-slate-600">דקות</span>
+                        <button onclick="startTimer()" class="flex-1 bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-3 rounded-lg transition text-sm cursor-pointer">
+                            <i class="fas fa-play ml-1"></i>הפעל
+                        </button>
+                        <button onclick="stopTimer()" class="bg-rose-500 hover:bg-rose-600 text-white font-bold py-2 px-3 rounded-lg transition text-sm cursor-pointer">
+                            <i class="fas fa-stop"></i>
+                        </button>
+                    </div>
+                    <div id="adminTimerPreview" class="text-center font-mono text-xl font-bold text-slate-700 bg-white py-1 rounded border border-slate-100 hidden">
+                        00:00:00
+                    </div>
                 </div>
             </div>
         </div>
@@ -104,7 +149,7 @@
                                     <th class="p-4 font-bold">הערות</th>
                                     <th class="p-4 font-bold text-center">פעולות</th>
                                 </tr>
-                            </thead>
+                            </table>
                             <tbody id="resultsTableBody" class="divide-y divide-slate-100">
                             </tbody>
                         </table>
@@ -120,7 +165,6 @@
                     </div>
 
                     <div id="judgingFormContent" class="space-y-5">
-                        <!-- תיקון 3: אפשרות לערוך את שמות חברי הקבוצה מהאדמין -->
                         <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
                             <label class="block text-sm font-bold text-slate-700 mb-2">עריכת שמות המשתתפים:</label>
                             <input type="text" id="editGroupMembersInput" class="w-full bg-white border border-slate-300 rounded-lg p-2 text-sm outline-none focus:ring-2 focus:ring-indigo-500">
@@ -174,13 +218,11 @@
         </main>
     </div>
 
-    <!-- תצוגה 2: חיפוש קבוצה בסבב ספציפי (#round-X) -->
     <div id="roundUserView" class="view-section container mx-auto px-4 max-w-2xl">
         <div class="bg-white rounded-2xl p-8 shadow-xl border border-slate-200 text-center">
             <h2 class="text-3xl font-black text-indigo-900 mb-2">ברוכים הבאים לסבב <span id="userRoundNumberLabel"></span></h2>
             <p class="text-slate-600 mb-8 font-medium">מצאו את הקבוצה שלכם כדי להתחיל או לצפות בתוצאות</p>
 
-            <!-- תיבת החיפוש הדינמית -->
             <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 text-right space-y-4">
                 <label id="searchLabel" class="block font-bold text-slate-800">הזינו שם של אחד מחברי הקבוצה:</label>
                 <div class="flex gap-2">
@@ -191,7 +233,6 @@
                 <button onclick="resetSearch()" class="text-xs text-slate-400 underline hover:text-slate-600 cursor-pointer block">אפס חיפוש</button>
             </div>
 
-            <!-- רשימת קבוצות מלאה לגיבוי מהיר לחציה -->
             <div class="mt-8 text-right">
                 <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">או בחרו ישירות מהרשימה:</h4>
                 <div id="quickGroupLinks" class="grid grid-cols-2 gap-2"></div>
@@ -199,7 +240,6 @@
         </div>
     </div>
 
-    <!-- תצוגה 3: עמוד קבוצה ספציפי (#round-X_team-Y) -->
     <div id="teamView" class="view-section container mx-auto px-4 max-w-3xl">
         <div class="bg-white rounded-2xl p-8 shadow-xl border border-indigo-100 space-y-8">
             <div class="border-b border-slate-100 pb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -211,9 +251,6 @@
                 <a href="#" id="backToRoundBtn" class="text-sm font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1"><i class="fas fa-arrow-left"></i> חזרה לחיפוש</a>
             </div>
 
-            <!-- מצבי תחרות לקבוצה -->
-            
-            <!-- תיקון 1: מצב הכנת תוצרים (הזנת קישור פעילה) -->
             <div id="statusSubmissionSection" class="hidden bg-indigo-50 border border-indigo-200 rounded-2xl p-6 text-center space-y-4">
                 <div class="text-indigo-600 text-4xl animate-bounce"><i class="fas fa-cloud-upload-alt"></i></div>
                 <h3 class="text-xl font-black text-indigo-950">חלון הגשת תוצרים פתוח!</h3>
@@ -229,16 +266,13 @@
                 </div>
             </div>
 
-            <!-- תיקון 1: מצב התחרות בעיצומה (הקבוצות חסומות מלערוך או להזין קישור) -->
             <div id="statusRunningSection" class="hidden bg-blue-50 border border-blue-200 rounded-2xl p-6 text-center space-y-4">
                 <div class="text-blue-600 text-4xl animate-pulse"><i class="fas fa-laptop-code"></i></div>
                 <h3 class="text-xl font-black text-blue-900">התחרות בעיצומה!</h3>
                 <p class="text-sm text-blue-700 max-w-md mx-auto">עבדו חזק על הפרויקטים שלכם. חלון העריכה והגשת הקישורים סגור בשלב זה.</p>
-                
                 <div id="savedUrlDisplayContainer" class="text-xs text-slate-500 bg-slate-100 p-2 rounded-lg inline-block"></div>
             </div>
 
-            <!-- מצב: סיום תחרות / רגעי לחץ -->
             <div id="statusEndingSection" class="hidden bg-amber-50 border border-amber-200 rounded-2xl p-8 text-center space-y-3">
                 <div class="text-amber-500 text-5xl"><i class="fas fa-hourglass-half"></i></div>
                 <h3 class="text-2xl font-black text-amber-900">ממש עוד רגע תראו את התוצאות...</h3>
@@ -246,7 +280,6 @@
                 <p class="text-sm text-slate-600">השופטים מסיימים להקליד את הציונים האחרונים ומשקללים את הנתונים. הישארו מעודכנים.</p>
             </div>
 
-            <!-- מצב: פרסום תוצאות -->
             <div id="statusPublishedSection" class="hidden space-y-6">
                 <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 text-center">
                     <div class="text-emerald-500 text-4xl mb-2"><i class="fas fa-check-circle"></i></div>
@@ -279,7 +312,49 @@
         </div>
     </div>
 
-    <!-- סקריפט מודולרי מרכזי מחובר ל-Firebase Realtime Database -->
+    <div id="audienceView" class="view-section container mx-auto px-4 max-w-5xl">
+        <div class="bg-white rounded-3xl p-8 shadow-xl border border-slate-200 space-y-8">
+            <div class="text-center">
+                <span class="bg-purple-100 text-purple-700 font-bold px-4 py-1.5 rounded-full text-xs uppercase tracking-wider" id="audienceRoundBadge">סבב פעיל</span>
+                <h2 class="text-4xl font-black text-slate-900 mt-2 mb-4">מסך מרכזי - מלווה תחרות</h2>
+                
+                <div id="audienceRoundSelectorContainer" class="hidden justify-center items-center gap-2 mb-4">
+                    <label class="text-sm font-bold text-slate-600">הצג סבב:</label>
+                    <select id="audienceRoundSelect" onchange="changeAudienceViewRound(this.value)" class="bg-slate-100 border border-slate-300 rounded-lg p-1.5 text-sm font-bold outline-none"></select>
+                </div>
+            </div>
+
+            <div id="audienceTimerBox" class="hidden bg-gradient-to-br from-amber-500 to-orange-600 text-white rounded-2xl p-6 text-center shadow-lg max-w-md mx-auto">
+                <p class="text-sm font-bold uppercase tracking-wide opacity-90 mb-1"><i class="fas fa-hourglass-start ml-1"></i>הזמן הנותר לסיום הסבב</p>
+                <div id="audienceTimerDisplay" class="text-5xl font-mono font-black tracking-widest">00:00</div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-8 items-center pt-4">
+                <div class="md:col-span-4 bg-slate-50 p-6 rounded-2xl border border-slate-200 text-center flex flex-col items-center justify-center space-y-4">
+                    <h3 class="font-bold text-slate-800 text-lg">סרקו ומצאו את הקבוצה שלכם:</h3>
+                    <div class="bg-white p-3 rounded-xl shadow-sm border border-slate-100">
+                        <img id="audienceQrImg" src="" alt="QR Code" class="w-48 h-48">
+                    </div>
+                    <div class="w-full text-center">
+                        <p class="text-xs text-slate-400 font-medium mb-1">ניתן להיכנס גם ישירות דרך הלינק:</p>
+                        <a href="https://did.li/bmhackathon" target="_blank" class="text-indigo-600 font-black underline hover:text-indigo-800 text-base tracking-wide">https://did.li/bmhackathon</a>
+                    </div>
+                </div>
+
+                <div class="md:col-span-8 space-y-4">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+                            <i class="fas fa-clipboard-list text-indigo-600"></i>סטטוס הגשות קבוצות בסבב
+                        </h3>
+                        <span id="submissionStatsLabel" class="text-xs font-bold bg-slate-100 text-slate-600 px-2 py-1 rounded-lg border border-slate-200">0/0 הגישו</span>
+                    </div>
+                    <div id="audienceTeamsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[350px] overflow-y-auto pr-1">
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getDatabase, ref, set, onValue, push, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
@@ -302,13 +377,14 @@
         let currentRound = 1;
         let activeGroupKey = null;
         let allGroups = {};
-        let roundStatus = 'submission'; // submission, running, ending, published
+        let roundStatus = 'submission'; 
+        let activeRoundsMap = {}; // שמירת המצב הפעיל/לא פעיל של כל הסבבים
+        let timerInterval = null;
 
-        // משתנים ייעודיים לניהול החיפוש החכם
         let searchCurrentMatches = [];
         let searchCollectedNames = [];
 
-        // חשיפת פונקציות לחלון הגלובלי (עבור תאימות ל-inline Event Listeners של HTML)
+        // חשיפת פונקציות לחלון הגלובלי
         window.changeRound = changeRound;
         window.addNewGroup = addNewGroup;
         window.loadGroup = loadGroup;
@@ -317,13 +393,15 @@
         window.searchGroupStep = searchGroupStep;
         window.resetSearch = resetSearch;
         window.saveProductUrl = saveProductUrl;
+        window.toggleRoundActiveState = toggleRoundActiveState;
+        window.startTimer = startTimer;
+        window.stopTimer = stopTimer;
+        window.changeAudienceViewRound = changeAudienceViewRound;
+        window.navigateToRound = navigateToRound;
 
-        // האזנה לשינויי Hash בכתובת ה-URL (מנגנון הניתוב)
-        window.addEventListener('hashchange', handleRouting);
-        
-        // אתחול ראשוני
+        // אתחול ראשוני והאזנה למצב הסבבים הפעילים גלובלית
         buildRoundOptions();
-        handleRouting();
+        listenToActiveRoundsSystem();
 
         function buildRoundOptions() {
             const select = document.getElementById("roundSelect");
@@ -335,9 +413,18 @@
             }
         }
 
-        // תיקון 2: ניתוח ה-Hash, הצגת המסך והתאמת כותרות האתר דינמית
+        // האזנה למערך הסבבים הפעילים לקביעת ניתובים וניהול
+        function listenToActiveRoundsSystem() {
+            const activeRoundsRef = ref(db, 'hackathon_active_rounds');
+            onValue(activeRoundsRef, (snapshot) => {
+                activeRoundsMap = snapshot.val() || {};
+                handleRouting();
+            });
+        }
+
+        // ניתוח ה-Hash, הצגת המסך והתאמת כותרות האתר דינמית + הגנה וניתוב לסבבים פעילים
         function handleRouting() {
-            const hash = window.location.hash || '#round-1';
+            const hash = window.location.hash || '';
             
             // הסתרת כל המסכים תחילה
             document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
@@ -346,40 +433,137 @@
             const mainHeaderTitleEl = document.getElementById('mainHeaderTitle');
             const mainHeaderSubtitleEl = document.getElementById('mainHeaderSubtitle');
 
+            // 1. כניסה ללא נתיב ספציפי (דף הבית / שורש האתר) -> בדיקת סבבים פעילים
+            if (!hash || hash === '#') {
+                const activeRoundsList = Object.entries(activeRoundsMap).filter(([r, active]) => active).map(([r]) => parseInt(r.replace('round_', '')));
+                
+                if (activeRoundsList.length === 1) {
+                    // יש בדיוק סבב אחד פעיל -> מעבירים אליו אוטומטית
+                    window.location.hash = `#round-${activeRoundsList[0]}`;
+                    return;
+                } else {
+                    // אין סבבים פעילים או שיש יותר מאחד -> מציגים דף בחירה ייעודי
+                    document.getElementById('welcomeView').classList.add('active');
+                    titleEl.innerText = "בחירת סבב תחרות - האקטון AI";
+                    mainHeaderTitleEl.innerText = "תחרות האקטון AI";
+                    mainHeaderSubtitleEl.innerText = "בחירת סבב פעיל";
+                    renderWelcomeActiveSelection(activeRoundsList);
+                    return;
+                }
+            }
+
+            // 2. פאנל ניהול ואדמין
             if (hash === '#admin') {
                 document.getElementById('adminView').classList.add('active');
-                
-                // כותרות מצב אדמין/שפיטה
                 titleEl.innerText = "שפיטת תחרות האקטון AI - בית מילר";
                 mainHeaderTitleEl.innerText = "שפיטת תחרות האקטון AI";
                 mainHeaderSubtitleEl.innerText = "פאנל ניהול ושופטים - בית מילר";
-
                 listenToData();
+                listenToTimer();
+                return;
             } 
-            else {
-                // כותרות האתר הרגיל קבוצות ומשתמשים
-                titleEl.innerText = "תחרות האקטון AI - - בית מילר";
-                mainHeaderTitleEl.innerText = "תחרות האקטון AI";
-                mainHeaderSubtitleEl.innerText = "סדנה טכנולוגית בבית מילר";
 
-                if (hash.startsWith('#round-') && hash.includes('_team-')) {
-                    // עמוד קבוצה ספציפי
-                    document.getElementById('teamView').classList.add('active');
-                    const parts = hash.replace('#round-', '').split('_team-');
-                    currentRound = parseInt(parts[0]) || 1;
-                    const teamId = parseInt(parts[1]);
-                    listenToTeamData(teamId);
-                } 
-                else if (hash.startsWith('#round-')) {
-                    // עמוד חיפוש קבוצה
-                    document.getElementById('roundUserView').classList.add('active');
-                    currentRound = parseInt(hash.replace('#round-', '')) || 1;
-                    document.getElementById('userRoundNumberLabel').innerText = currentRound;
-                    document.getElementById('backToRoundBtn').href = `#round-${currentRound}`;
-                    resetSearch();
-                    listenToData();
+            // 3. מצב קהל מרכזי
+            if (hash.startsWith('#audience')) {
+                document.getElementById('audienceView').classList.add('active');
+                titleEl.innerText = "מצב קהל - האקטון AI בית מילר";
+                mainHeaderTitleEl.innerText = "תחרות האקטון AI";
+                mainHeaderSubtitleEl.innerText = "לוח בקרה לקהל הרחב";
+                
+                const activeRoundsList = Object.entries(activeRoundsMap).filter(([r, active]) => active).map(([r]) => parseInt(r.replace('round_', '')));
+                
+                if (!hash.includes('-') && activeRoundsList.length > 0) {
+                    currentRound = activeRoundsList[0];
+                } else if (hash.includes('-')) {
+                    currentRound = parseInt(hash.split('-')[1]) || 1;
+                } else {
+                    currentRound = 1;
                 }
+                
+                renderAudienceRoundSelector(activeRoundsList);
+                listenToData();
+                listenToTimer();
+                return;
             }
+
+            // 4. תצוגות משתמשים וקבוצות רגילות
+            titleEl.innerText = "תחרות האקטון AI - בית מילר";
+            mainHeaderTitleEl.innerText = "תחרות האקטון AI";
+            mainHeaderSubtitleEl.innerText = "סדנה טכנולוגית בבית מילר";
+
+            if (hash.startsWith('#round-') && hash.includes('_team-')) {
+                document.getElementById('teamView').classList.add('active');
+                const parts = hash.replace('#round-', '').split('_team-');
+                currentRound = parseInt(parts[0]) || 1;
+                const teamId = parseInt(parts[1]);
+                listenToTeamData(teamId);
+                listenToTimer();
+            } 
+            else if (hash.startsWith('#round-')) {
+                document.getElementById('roundUserView').classList.add('active');
+                currentRound = parseInt(hash.replace('#round-', '')) || 1;
+                document.getElementById('userRoundNumberLabel').innerText = currentRound;
+                document.getElementById('backToRoundBtn').href = `#round-${currentRound}`;
+                resetSearch();
+                listenToData();
+                listenToTimer();
+            }
+        }
+
+        function renderWelcomeActiveSelection(activeList) {
+            const container = document.getElementById('activeRoundsSelectionList');
+            container.innerHTML = '';
+            
+            if (activeList.length === 0) {
+                container.innerHTML = `<p class="text-sm text-amber-600 bg-amber-50 p-3 rounded-xl border border-amber-200">אין כרגע סבבים מסומנים כפעילים במערכת. פנו לצוות הניהול.</p>`;
+                // מאפשרים גיבוי כניסה לכל הסבבים
+                for(let i=1; i<=4; i++) {
+                    container.appendChild(createWelcomeBtn(i, false));
+                }
+                return;
+            }
+            
+            activeList.forEach(roundNum => {
+                container.appendChild(createWelcomeBtn(roundNum, true));
+            });
+        }
+
+        function createWelcomeBtn(roundNum, isActive) {
+            const btn = document.createElement('button');
+            btn.className = `w-full ${isActive ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-slate-500 hover:bg-slate-600'} text-white font-bold py-3 px-4 rounded-xl transition flex justify-between items-center shadow-sm cursor-pointer`;
+            btn.onclick = () => window.location.hash = `#round-${roundNum}`;
+            btn.innerHTML = `<span>כניסה לסבב ${roundNum}</span> <i class="fas fa-chevron-left text-xs opacity-80"></i>`;
+            return btn;
+        }
+
+        function navigateToRound(roundNum) {
+            window.location.hash = `#round-${roundNum}`;
+        }
+
+        function renderAudienceRoundSelector(activeList) {
+            const container = document.getElementById('audienceRoundSelectorContainer');
+            const select = document.getElementById('audienceRoundSelect');
+            
+            if (activeList.length <= 1) {
+                container.classList.remove('flex');
+                container.classList.add('hidden');
+                return;
+            }
+            
+            select.innerHTML = '';
+            activeList.forEach(r => {
+                const opt = document.createElement('option');
+                opt.value = r;
+                opt.text = `סבב ${r}`;
+                if (r === currentRound) opt.selected = true;
+                select.add(opt);
+            });
+            container.classList.remove('hidden');
+            container.classList.add('flex');
+        }
+
+        function changeAudienceViewRound(roundNum) {
+            window.location.hash = `#audience-${roundNum}`;
         }
 
         function changeRound(roundNum) {
@@ -388,6 +572,84 @@
             activeGroupKey = null;
             resetForm();
             listenToData();
+            listenToTimer();
+        }
+
+        // שינוי מצב סבב פעיל / לא פעיל ב-Firebase
+        async function toggleRoundActiveState() {
+            const currentIsActive = activeRoundsMap[`round_${currentRound}`] || false;
+            await set(ref(db, `hackathon_active_rounds/round_${currentRound}`), !currentIsActive);
+        }
+
+        // הפעלת טיימר סנכרוני דרך ה-DB
+        async function startTimer() {
+            const minutes = parseInt(document.getElementById('timerMinutesInput').value) || 60;
+            const targetTime = Date.now() + (minutes * 60 * 1000);
+            await set(ref(db, `hackathon_timer/round_${currentRound}`), {
+                targetTime: targetTime,
+                active: true,
+                duration: minutes
+            });
+        }
+
+        // עצירת טיימר
+        async function stopTimer() {
+            await set(ref(db, `hackathon_timer/round_${currentRound}`), {
+                targetTime: 0,
+                active: false,
+                duration: 0
+            });
+        }
+
+        // האזנה למנגנון הטיימר בזמן אמת והצגתו בכל התצוגות הרלוונטיות
+        function listenToTimer() {
+            const timerRef = ref(db, `hackathon_timer/round_${currentRound}`);
+            if (timerInterval) clearInterval(timerInterval);
+
+            onValue(timerRef, (snapshot) => {
+                const timerData = snapshot.val();
+                const globalBox = document.getElementById('globalTimerContainer');
+                const audienceBox = document.getElementById('audienceTimerBox');
+                const adminPreview = document.getElementById('adminTimerPreview');
+
+                if (timerInterval) clearInterval(timerInterval);
+
+                if (timerData && timerData.active && timerData.targetTime > Date.now()) {
+                    if (globalBox) globalBox.classList.remove('hidden');
+                    if (audienceBox && window.location.hash.startsWith('#audience')) audienceBox.classList.remove('hidden');
+                    if (adminPreview && window.location.hash === '#admin') adminPreview.classList.remove('hidden');
+
+                    const updateUI = () => {
+                        const diff = timerData.targetTime - Date.now();
+                        if (diff <= 0) {
+                            clearInterval(timerInterval);
+                            const expiredStr = "הזמן תם!";
+                            if (document.getElementById('globalTimerDisplay')) document.getElementById('globalTimerDisplay').innerText = expiredStr;
+                            if (document.getElementById('audienceTimerDisplay')) document.getElementById('audienceTimerDisplay').innerText = expiredStr;
+                            if (adminPreview) adminPreview.innerText = expiredStr;
+                            return;
+                        }
+                        const totalSec = Math.floor(diff / 1000);
+                        const hrs = Math.floor(totalSec / 3600);
+                        const mins = Math.floor((totalSec % 3600) / 60);
+                        const secs = totalSec % 60;
+
+                        const displayStr = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                        const fullDisplayStr = `${hrs.toString().padStart(2, '0')}:${displayStr}`;
+
+                        if (document.getElementById('globalTimerDisplay')) document.getElementById('globalTimerDisplay').innerText = displayStr;
+                        if (document.getElementById('audienceTimerDisplay')) document.getElementById('audienceTimerDisplay').innerText = displayStr;
+                        if (adminPreview) adminPreview.innerText = fullDisplayStr;
+                    };
+
+                    updateUI();
+                    timerInterval = setInterval(updateUI, 1000);
+                } else {
+                    if (globalBox) globalBox.classList.add('hidden');
+                    if (audienceBox) audienceBox.classList.add('hidden');
+                    if (adminPreview) adminPreview.classList.add('hidden');
+                }
+            });
         }
 
         // האזנה לנתוני הסבב ב-Firebase
@@ -395,8 +657,13 @@
             const roundRef = ref(db, `hackathon/round_${currentRound}`);
             onValue(roundRef, (snapshot) => {
                 allGroups = snapshot.val() || {};
-                renderUI();
-                if (window.location.hash.startsWith('#round-') && !window.location.hash.includes('_team-')) {
+                
+                const hash = window.location.hash || '';
+                if (hash === '#admin') {
+                    renderUI();
+                } else if (hash.startsWith('#audience')) {
+                    renderAudienceContent();
+                } else if (hash.startsWith('#round-') && !hash.includes('_team-')) {
                     renderQuickLinks();
                 }
             });
@@ -406,6 +673,25 @@
                 roundStatus = snapshot.val() || 'submission';
                 updateStatusUI();
             });
+
+            // עדכון כפתור הפעיל באדמין על פי מפת הסבבים
+            const adminActiveBtn = document.getElementById('toggleActiveRoundBtn');
+            if (adminActiveBtn) {
+                const isRoundActive = activeRoundsMap[`round_${currentRound}`] || false;
+                if (isRoundActive) {
+                    adminActiveBtn.innerText = "פעיל (לחץ לביטול)";
+                    adminActiveBtn.className = "font-bold py-1 px-3 rounded-lg text-sm transition cursor-pointer bg-emerald-100 text-emerald-700 border border-emerald-300";
+                } else {
+                    adminActiveBtn.innerText = "לא פעיל (לחץ להפעלה)";
+                    adminActiveBtn.className = "font-bold py-1 px-3 rounded-lg text-sm transition cursor-pointer bg-slate-100 text-slate-600 border border-slate-300";
+                }
+            }
+            
+            // עדכון בורר הסבבים באדמין שיתאים דינמית
+            const roundSelectInput = document.getElementById("roundSelect");
+            if (roundSelectInput && parseInt(roundSelectInput.value) !== currentRound) {
+                roundSelectInput.value = currentRound;
+            }
         }
 
         // האזנה לעמוד קבוצה ספציפי בזמן אמת
@@ -437,16 +723,16 @@
 
             if (roundStatus === 'submission') {
                 adminLabel.innerText = "הכנת תוצרים (הזנת לינקים פעילה לקבוצות)";
-                adminLabel.className = "font-bold text-indigo-600";
+                adminLabel.className = "font-bold text-indigo-600 text-sm";
             } else if (roundStatus === 'running') {
                 adminLabel.innerText = "התחרות בעיצומה (קבוצות חסומות מעריכה)";
-                adminLabel.className = "font-bold text-blue-600";
+                adminLabel.className = "font-bold text-blue-600 text-sm";
             } else if (roundStatus === 'ending') {
                 adminLabel.innerText = "סיום תחרות (ממש עוד רגע / איזה לחץ)";
-                adminLabel.className = "font-bold text-amber-600";
+                adminLabel.className = "font-bold text-amber-600 text-sm";
             } else if (roundStatus === 'published') {
                 adminLabel.innerText = "תוצאות וניקוד פורסמו לכולם";
-                adminLabel.className = "font-bold text-emerald-600";
+                adminLabel.className = "font-bold text-emerald-600 text-sm";
             }
         }
 
@@ -553,7 +839,6 @@
             document.getElementById("judgingTitle").innerText = g.name;
             document.getElementById("judgingMembers").innerText = g.members;
             
-            // תיקון 3: השמת שמות חברי הקבוצה הנוכחיים בתיבת העריכה של האדמין
             document.getElementById("editGroupMembersInput").value = g.members || "";
 
             document.getElementById("crit1").value = g.crit1 || 1;
@@ -575,13 +860,13 @@
             const editedMembers = document.getElementById("editGroupMembersInput").value.trim();
             const c1 = parseInt(document.getElementById("crit1").value);
             const c2 = parseInt(document.getElementById("crit2").value);
-            const c3 = parseInt(document.getElementById("crit3").value);
+            const textC3 = document.getElementById("crit3").value;
+            const c3 = parseInt(textC3);
             const c4 = parseInt(document.getElementById("crit4").value);
             const notes = document.getElementById("groupNotes").value;
             
             const finalScore = ((c1*0.2) + (c2*0.2) + (c3*0.3) + (c4*0.3)).toFixed(2);
 
-            // עדכון הנתונים (כולל השמות הערוכים החדשים) ב-Firebase
             await update(ref(db, `hackathon/round_${currentRound}/${activeGroupKey}`), {
                 members: editedMembers,
                 crit1: c1, crit2: c2, crit3: c3, crit4: c4,
@@ -662,16 +947,14 @@
             });
         }
 
-/* רינדור ממשק קבוצה בודדת */
+        /* רינדור ממשק קבוצה בודדת */
         function renderTeamSingleView(group) {
             document.getElementById('teamViewRoundLabel').innerText = `סבב ${currentRound}`;
             document.getElementById('teamViewNameLabel').innerText = group.name;
             document.getElementById('teamViewMembersLabel').innerText = `משתתפים: ${group.members}`;
 
-            // תיקון חזרה לסבב הנוכחי: מעדכן את כפתור החזרה דינמית לסבב הפעיל
             document.getElementById('backToRoundBtn').href = `#round-${currentRound}`;
 
-            // הסתרת כל הסקשנים תחילה
             document.getElementById('statusSubmissionSection').classList.add('hidden');
             document.getElementById('statusRunningSection').classList.add('hidden');
             document.getElementById('statusEndingSection').classList.add('hidden');
@@ -682,7 +965,6 @@
                 urlInput.value = group.productUrl;
             }
 
-            // התאמת פיצ'רים וטקסטים לפי 4 הסטטוסים המופרדים
             if (roundStatus === 'submission') {
                 document.getElementById('statusSubmissionSection').classList.remove('hidden');
             } 
@@ -723,6 +1005,54 @@
             const statusText = document.getElementById('productUrlStatus');
             statusText.classList.remove('hidden');
             setTimeout(() => statusText.classList.add('hidden'), 3000);
+        }
+
+        /* רינדור תוכן "מצב קהל" */
+        function renderAudienceContent() {
+            document.getElementById('audienceRoundBadge').innerText = `סבב פעיל ${currentRound}`;
+            
+            // עדכון הברקוד דינמית שיוביל לעמוד החיפוש של הסבב הנוכחי
+            const currentRoundUrl = `${window.location.origin}${window.location.pathname}#round-${currentRound}`;
+            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(currentRoundUrl)}`;
+            document.getElementById('audienceQrImg').src = qrApiUrl;
+
+            // רינדור קבוצות ובדיקת הגשות
+            const gridContainer = document.getElementById('audienceTeamsGrid');
+            if (!gridContainer) return;
+            gridContainer.innerHTML = '';
+
+            const groupsArr = Object.values(allGroups);
+            let submittedCount = 0;
+
+            if (groupsArr.length === 0) {
+                gridContainer.innerHTML = `<p class="text-sm text-slate-400 p-4 text-center col-span-2">אין קבוצות רשומות בסבב זה כרגע.</p>`;
+                document.getElementById('submissionStatsLabel').innerText = "0/0 הגישו";
+                return;
+            }
+
+            groupsArr.sort((a,b) => a.id - b.id).forEach(group => {
+                const hasSubmitted = group.productUrl && group.productUrl.trim() !== "";
+                if (hasSubmitted) submittedCount++;
+
+                const card = document.createElement('div');
+                card.className = `p-4 rounded-xl border flex items-center justify-between shadow-sm bg-white ${hasSubmitted ? 'border-emerald-200 bg-emerald-50/20' : 'border-slate-200'}`;
+                
+                card.innerHTML = `
+                    <div>
+                        <h4 class="font-bold text-slate-800 text-sm">${group.name}</h4>
+                        <p class="text-xs text-slate-500 truncate max-w-[200px]">${group.members}</p>
+                    </div>
+                    <div>
+                        ${hasSubmitted 
+                            ? `<span class="bg-emerald-600 text-white text-[11px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-sm"><i class="fas fa-check text-[9px]"></i> הוגש</span>`
+                            : `<span class="bg-slate-100 text-slate-400 text-[11px] font-bold px-2.5 py-1 rounded-full border border-slate-200">בבודה...</span>`
+                        }
+                    </div>
+                `;
+                gridContainer.appendChild(card);
+            });
+
+            document.getElementById('submissionStatsLabel').innerText = `${submittedCount}/${groupsArr.length} קבוצות הגישו`;
         }
     </script>
 </body>
